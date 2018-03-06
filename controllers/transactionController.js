@@ -20,17 +20,17 @@ module.exports = {
     })
   },
   addTrasaction (req,res){
-    const random = Math.floor(Math.random()*10)
+    // const random = Math.floor(Math.random()*10)
     const {member,days,in_date,fine,booklist} = req.body
     const transaction = new Transaction ()
     transaction.member = member
     transaction.days = days
     transaction.due_date = moment(transaction.out_date).add(days,'days')
-    transaction.in_date = moment(transaction.due_date).add(random,'days')
+    transaction.in_date = in_date
     let diff = Math.ceil((transaction.in_date - transaction.due_date)/(1000*3600*24))
     transaction.fine = 1000 * (diff)
     transaction.booklist = booklist
-    console.log(random,"==========rndom")
+    // console.log(random,"==========rndom")
     
     transaction.save().then(data=>{
       res.status(200).send({
@@ -41,7 +41,7 @@ module.exports = {
   },
   updateTransaction (req,res){
     // findOneAndUpdate(conditions, update, options, callback)
-    Transaction.findOneAndUpdate({_id:req.params.id},req.body,(err)=>{
+    Transaction.findOneAndUpdate({_id:req.params.id},req.body,{upsert:true},(err)=>{
       if(err){
         res.status(400).send({
           message: "transaction not found"
